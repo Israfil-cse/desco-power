@@ -3,6 +3,9 @@ import "./Register.css"
 import axios from "axios"
 import { useHistory } from "react-router-dom"
 import Header from "../../Shared/Header/Header"
+import Swal from 'sweetalert2'
+
+
 
 const Register = () => {
 
@@ -23,22 +26,45 @@ const Register = () => {
         })
     }
 
+
+
     const register = () => {
         const { name, email, password, reEnterPassword } = user
         if (name && email && password && (password === reEnterPassword)) {
-            axios.post("http://localhost:5000/api/registration", user)
+            axios.post("https://enigmatic-meadow-75433.herokuapp.com/api/registration", user)
                 .then(res => {
 
                     if (res.data.message) {
-                        alert("User already exist")
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'User already exist!',
+                            
+                          })
+                        
                     }
                     else {
-                        alert("Successfully registered")
+                        Swal.fire(
+                            {
+                                position: 'top',
+                                icon: 'success',
+                                title: 'Successfully Registered',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }
+
+                        )
                         history.push("/login")
                     }
                 })
         } else {
-            alert("invalid input")
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Invalid input!',
+                
+              })
+            
         }
 
     }
@@ -47,7 +73,6 @@ const Register = () => {
         <>
             <Header />
             <div className="register mx-auto my-5">
-                {console.log("User", user)}
                 <h1>Register</h1>
                 <input type="text" name="name" value={user.name} placeholder="Your Name" onChange={handleChange}></input>
 

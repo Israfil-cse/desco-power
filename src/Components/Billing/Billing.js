@@ -10,12 +10,13 @@ const Billing = () => {
 
     const [searchResult, setSearchResult] = useContext(billContext)
 
+
     const [pageCount, setPageCount] = useState(0);
     const [page, setPage] = useState(0);
     const size = 10;
 
     useEffect(() => {
-        fetch(`http://localhost:5000/api/billing-list?page=${page}&&size=${size}`)
+        fetch(`https://enigmatic-meadow-75433.herokuapp.com/api/billing-list?page=${page}&&size=${size}`)
             .then(res => res.json())
             .then(data => {
                 setSearchResult(data.result)
@@ -29,7 +30,7 @@ const Billing = () => {
     const handleDelete = (id) => {
         const proceed = window.confirm("Are you sure you want to delete?");
         if (proceed) {
-            fetch(`http://localhost:5000/api/delete-billing/${id}`, {
+            fetch(`https://enigmatic-meadow-75433.herokuapp.com/api/delete-billing/${id}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' }
             })
@@ -46,7 +47,7 @@ const Billing = () => {
     const [bill, setBill] = useState({});
 
     const handleEdit = (id) => {
-        fetch(`http://localhost:5000/allBillings/${id}`)
+        fetch(`https://enigmatic-meadow-75433.herokuapp.com/allBillings/${id}`)
             .then((res) => res.json())
             .then((data) => setBill(data));
     }
@@ -56,7 +57,7 @@ const Billing = () => {
 
         const id = bill?._id
 
-        fetch(`http://localhost:5000/api/update-billing/${id}`, {
+        fetch(`https://enigmatic-meadow-75433.herokuapp.com/api/update-billing/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
@@ -67,8 +68,18 @@ const Billing = () => {
                     alert("Bill updated successfully!");
                     reset(setBill({}));
                 }
+
             });
     }
+
+    // Before the API gives a success response.
+    const [billId, setbillId] = useState({})
+    useEffect(() => {
+        const data = sessionStorage.getItem("data");
+        const newData = JSON.parse(data);
+        setbillId(newData);
+    }, [0])
+
 
     return (
         <>
@@ -88,8 +99,11 @@ const Billing = () => {
                     {
                         searchResult.map((service, index) =>
                             <tr>
-                                <td>{index + 1}</td>
-                                <td>{service?.id}</td>
+                                <td>{searchResult.length - index}</td>
+                                <td>{!service.id ?
+                                    billId?.id
+                                    : service?.id
+                                }</td>
                                 <td>{service?.name}</td>
                                 <td>{service?.email}</td>
                                 <td>+88{service?.phone}</td>
@@ -99,7 +113,7 @@ const Billing = () => {
                                     <button className="btn btn-light ms-2" onClick={() => handleDelete(service?._id)}>Delete</button>
                                 </td>
                             </tr>
-                        )
+                        ).reverse()
                     }
                 </tbody>
             </table>

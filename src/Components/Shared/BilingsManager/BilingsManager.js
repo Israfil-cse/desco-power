@@ -1,40 +1,71 @@
 import React, { useContext, useEffect, useState } from 'react';
 import './BlinigsManager.css'
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { billContext } from '../../../App';
-
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import Swal from 'sweetalert2'
 
 const BilingsManager = () => {
-    const { register, handleSubmit, reset } = useForm();
+    const { register, handleSubmit, reset, formState: { errors }, control } = useForm();
 
     const [searchResult, setSearchResult] = useContext(billContext)
 
     const [billings, setBillings] = useState([])
 
-
     const id = Math.ceil(Math.random() * 1000);
+
+
 
     const onSubmit = data => {
         data.id = "DP_" + id;
-        fetch("http://localhost:5000/api/add-billing", {
+
+        if (data.phone.length < 11 || data.phone.length > 11) {
+            alert("Phone number must be 11 digit");
+            return;
+        }
+
+        let dataId = { id: data.id };
+        let value = JSON.stringify(dataId);
+        sessionStorage.setItem("data", value);
+        
+       
+       
+        
+
+        fetch("https://enigmatic-meadow-75433.herokuapp.com/api/add-billing", {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(data)
+            
         })
             .then(res => res.json())
             .then(data => {
                 if (data.acknowledged) {
-                    alert("Bill added successfully")
+                    Swal.fire(
+                        {
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Bill Successfully Added',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }
+
+                    )
                 }
                 else {
-                    alert("Sorry! Something wrong")
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Sorry! something went wrong',
+
+                    })
                 }
             })
         reset();
     };
 
     useEffect(() => {
-        fetch("http://localhost:5000/allBillings")
+        fetch("https://enigmatic-meadow-75433.herokuapp.com/allBillings")
             .then(res => res.json())
             .then(data => {
                 setBillings(data);
@@ -75,11 +106,18 @@ const BilingsManager = () => {
                                 <label>Full Name*:</label>
                                 <input type="text" {...register("name", { required: true })} className="form-control mb-3" />
                                 <label>Email*:</label>
+                                {errors.email && <span>please provide a valid email address</span>}
                                 <input type="email" {...register("email", { required: true })} className="form-control mb-3" />
+
+
                                 <label>Phone*:</label>
+                                {errors.phone && <span> number should be 11 digit</span>}
                                 <input type="tel" {...register("phone", { required: true })} className="form-control mb-3" />
+
                                 <label>Paid Amount*:</label>
                                 <input type="number" {...register("amount", { required: true })} className="form-control mb-3" />
+
+
                                 <p>[Note: * indicates required field]</p>
                                 <div className="modal-footer">
                                     <button type="submit" className="btn btn-dark">Add Bill</button>

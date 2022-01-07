@@ -4,6 +4,7 @@ import axios from "axios"
 import { useHistory } from "react-router-dom"
 import { userContext } from "../../../App"
 import Header from "../../Shared/Header/Header"
+import Swal from 'sweetalert2'
 
 
 const Login = () => {
@@ -24,13 +25,19 @@ const Login = () => {
     }
 
     const login = () => {
-        axios.post("http://localhost:5000/api/login", user)
+        axios.post("https://enigmatic-meadow-75433.herokuapp.com/api/login", user)
             .then(res => {
-                alert(res.data.message)
+                Swal.fire({
+
+                    text: (res.data.message),
+                    
+                  })
+                // alert(res.data.message)
                 setLoggedUser(res.data.user)
                 let person = { email: res.data.user.email };
                 let value = JSON.stringify(person);
                 sessionStorage.setItem("user", value);
+
                 history.push("/")
             })
     }

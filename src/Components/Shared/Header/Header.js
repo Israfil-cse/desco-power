@@ -11,7 +11,7 @@ const Header = () => {
     const history = useHistory()
 
     useEffect(() => {
-        fetch("http://localhost:5000/allBillings")
+        fetch("https://enigmatic-meadow-75433.herokuapp.com/allBillings")
             .then(res => res.json())
             .then(data => {
                 setBillingsAmount(data);
